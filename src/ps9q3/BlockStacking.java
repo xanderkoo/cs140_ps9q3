@@ -2,18 +2,32 @@ package ps9q3;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+/**
+ * Block stacking algorithm,
+ * 
+ * @author franka1
+ *
+ */
 public class BlockStacking {
 
+	/**
+	 * takes an input and output file and runs the algorithm on the blocks in the
+	 * input file. Dumps an optimal solution into the output file
+	 * 
+	 * @param args the input and output files, separated by a space
+	 */
 	public static void main(String[] args) {
 		// Catch bad arguments
-		if (args.length != 1) {
-			throw new IllegalArgumentException("Bad run argument. One line only.");
+		if (args.length != 2) {
+			throw new IllegalArgumentException("Bad run arguments");
+
 		}
 		BlockStacking stacking = new BlockStacking();
 
@@ -31,36 +45,76 @@ public class BlockStacking {
 
 		// Our DP table is 0-indexed
 		int[] dpTable = new int[blocks.size()];
+		int[] pointerTable = new int[blocks.size()];
 
 		// Load first entry into our DP table.
 		dpTable[0] = blocks.get(0).height();
+		pointerTable[0] = -1;
 
+		/*
+		 * Fill in the dp table, each entry is the maximum height of a tower using a
+		 * series of blocks given that block i is on the top of the tower.
+		 * 
+		 * We do this by getting the maximum stack height of all DP table entries where
+		 * block j is at the top of the stack, s.t. j < i, and block i fits on top of
+		 * block j
+		 */
 		for (int i = 1; i < blocks.size(); i++) {
 			int maxHeight = 0;
 			int index = -1;
-			
+
+			// for every block j before i, check if i fits on top of j and check if this
+			// table entry is the largest found so far
 			for (int j = 0; j < i; j++) {
 				if (blocks.get(i).canStackOnTop(blocks.get(j))) {
-//					System.out.print(blocks.get(i) + " can stack on top of " + blocks.get(j));
 					if (dpTable[j] > maxHeight) {
-//						System.out.print("HIT");
-						index = j;
+						index = j; // keep track of index of tallest stack
 						maxHeight = dpTable[j];
 					}
 				}
 			}
-			
-			System.out.println((index >= 0 ? blocks.get(index) : "") + " " + blocks.get(i).toString());
+			// now this table entry points back to the entry it was added onto (to
+			// reconstruct the table)
+			pointerTable[i] = index;
+
+			// add the height of block i onto the tallest tower found before it
 			dpTable[i] = maxHeight + blocks.get(i).height();
 		}
 
+		// find the max value in the whole DP table, this is the tallest tower possible
+		// given all the blocks
 		int maxStackHeight = -1;
-		System.out.println(Arrays.toString(dpTable));
-		for (int stackHeight : dpTable) {
-			maxStackHeight = Math.max(maxStackHeight, stackHeight);
+		int maxIndex = -1;
+		for (int i = 0; i < dpTable.length; i++) {
+			if (dpTable[i] >= maxStackHeight) {
+				maxStackHeight = dpTable[i];
+				maxIndex = i;
+			}
 		}
-		System.out.println(blocks);
-		System.out.println(maxStackHeight);
+
+		// reconstruct the optimal solution by tracing the index pointers starting at
+		// the index of tallest tower
+		ArrayList<BlockDimensions> answerBlocks = new ArrayList<BlockDimensions>();
+		int pointerIndex = maxIndex;
+
+		// keep going back to the next pointer until it is not pointing anywhere
+		// (default value of -1)
+		while (pointerIndex != -1) {
+			answerBlocks.add(blocks.get(pointerIndex));
+			pointerIndex = pointerTable[pointerIndex];
+		}
+
+		// write the solution to the output file
+		try {
+			PrintWriter outFileWriter = new PrintWriter(args[1]);
+			outFileWriter.println(answerBlocks.size());
+			for (int i = answerBlocks.size() - 1; i >= 0; i--) {
+				outFileWriter.println(answerBlocks.get(i).toString());
+			}
+			outFileWriter.close();
+		} catch (IOException e) {
+			throw new RuntimeException("Invalid output filepath");
+		}
 	}
 
 	/**
@@ -86,8 +140,7 @@ public class BlockStacking {
 					throw new NoSuchElementException();
 
 				// Grab the length width and height
-				int l = Integer.parseInt(dims[0]), w = Integer.parseInt(dims[1]),
-						h = Integer.parseInt(dims[2]);
+				int l = Integer.parseInt(dims[0]), w = Integer.parseInt(dims[1]), h = Integer.parseInt(dims[2]);
 
 				// Adds all <=6 unique orientations possible for that one block into our list
 				if (l == w && w == h) { // A cube
@@ -121,9 +174,9 @@ public class BlockStacking {
 
 			return out;
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException("Invalid filepath");
+			throw new RuntimeException("Invalid input filepath");
 		} catch (NoSuchElementException e) {
-			throw new RuntimeException("Data format is invalid");
+			throw new RuntimeException("Data input is invalid");
 		}
 	}
 

@@ -69,7 +69,7 @@ public class BlockDimensions implements Comparable<BlockDimensions> {
 	}
 	
 	public String toString() {
-		return "(" + length + "," + width + "," + height + ")";
+		return length + " " + width + " " + height;
 		
 	}
 }
