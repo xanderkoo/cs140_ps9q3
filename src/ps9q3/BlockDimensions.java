@@ -52,8 +52,8 @@ public class BlockDimensions implements Comparable<BlockDimensions> {
 	 */
 	public int compareTo(BlockDimensions bd) {
 		// TODO: double check to see if this is correct
-		int comp = ((Integer) this.length).compareTo(bd.length());
-		return (comp == 0) ? ((Integer) this.width).compareTo(bd.width()) : comp;
+		int comp = ((Integer) bd.length()).compareTo(this.length);
+		return (comp == 0) ? ((Integer) bd.width()).compareTo(this.width) : comp;
 	}
 
 	/**
@@ -65,6 +65,11 @@ public class BlockDimensions implements Comparable<BlockDimensions> {
 	 * @return true if can, false if can't
 	 */
 	public boolean canStackOnTop(BlockDimensions bd) {
-		return (this.length < bd.length() && this.width < bd.length());
+		return (this.length < bd.length() && this.width < bd.width());
+	}
+	
+	public String toString() {
+		return "(" + length + "," + width + "," + height + ")";
+		
 	}
 }
