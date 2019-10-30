@@ -13,3 +13,5 @@ cd path/to/file/cs140_ps9q3/src
 javac ps9q3/*.java
 java BlockStacking <in_path> <out_path>
 ```
+
+[Click here for documentation](https://docs.google.com/document/d/1uuO0SaK7CmO7X_I1ysrdSvurMDeQMK3vQpYrLzkpiyY/edit?ts=5db91426)
