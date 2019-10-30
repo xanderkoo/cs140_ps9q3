@@ -44,15 +44,30 @@ public class BlockStacking {
 				// Grab the length width and height
 				int length = Integer.parseInt(dims[0]), width = Integer.parseInt(dims[1]),
 						height = Integer.parseInt(dims[2]);
-
-				// TODO: Optimize this to remove duplicate entries?
-				// Adds all 6 orientations possible for that one block into our list
-				out.add(new BlockDimensions(length, width, height));
-				out.add(new BlockDimensions(length, height, width));
-				out.add(new BlockDimensions(width, length, height));
-				out.add(new BlockDimensions(width, height, length));
-				out.add(new BlockDimensions(height, length, width));
-				out.add(new BlockDimensions(height, width, length));
+				
+				// Adds all <=6 unique orientations possible for that one block into our list
+				if (length == width && width == height) { // A cube
+					out.add(new BlockDimensions(length, width, height));
+				} else if (length == width) {
+					out.add(new BlockDimensions(length, width, height));
+					out.add(new BlockDimensions(length, height, width));
+					out.add(new BlockDimensions(height, length, width));
+				} else if (width == height) {
+					out.add(new BlockDimensions(length, width, height));
+					out.add(new BlockDimensions(width, length, height));
+					out.add(new BlockDimensions(width, height, length));
+				} else if (height == length){
+					out.add(new BlockDimensions(length, width, height));
+					out.add(new BlockDimensions(length, height, width));
+					out.add(new BlockDimensions(width, length, height));
+				} else { // All sides not different
+					out.add(new BlockDimensions(length, width, height));
+					out.add(new BlockDimensions(length, height, width));
+					out.add(new BlockDimensions(width, length, height));
+					out.add(new BlockDimensions(width, height, length));
+					out.add(new BlockDimensions(height, length, width));
+					out.add(new BlockDimensions(height, width, length));
+				}
 			}
 
 			// Sort it by length, secondarily by width
