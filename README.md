@@ -1,3 +1,5 @@
+Block Stacking Problem, by Alex Franklin and Xander Koo
+
 **src/ps9q3/BlockDimensions.java:**
 
 This class represents a block with three dimensions, length, width, and height. It is used in the BlockStacking class to keep track of all the blocks and call methods to check if blocks fit on one another and to compare them.
